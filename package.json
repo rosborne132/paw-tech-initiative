@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start:site": "npx nx dev @paw-tech-initiative/site"
+    "build:site": "nx build @paw-tech-initiative/site",
+    "start:site": "nx dev @paw-tech-initiative/site"
   },
   "private": true,
   "devDependencies": {

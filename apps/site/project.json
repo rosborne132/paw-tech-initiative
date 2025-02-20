@@ -1,0 +1,72 @@
+{
+  "name": "site",
+  "root": "apps/site",
+  "sourceRoot": "apps/site/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/site",
+        "main": "apps/site/src/main.ts",
+        "tsConfig": "apps/site/tsconfig.app.json",
+        "assets": ["apps/site/src/assets"],
+        "styles": ["apps/site/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/site/src/environments/environment.ts",
+              "with": "apps/site/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "extractCss": true,
+          "namedChunks": false,
+          "aot": true,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "buildOptimizer": true,
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "2mb",
+              "maximumError": "5mb"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "options": {
+        "buildTarget": "site:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "site:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/site"],
+      "options": {
+        "jestConfig": "apps/site/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/site/**/*.ts", "apps/site/**/*.html"]
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,58 @@
+{
+  "name": "pet-adoption-db",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/pet-adoption-db/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/pet-adoption-db",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/pet-adoption-db/src/main.ts",
+        "tsConfig": "apps/pet-adoption-db/tsconfig.app.json",
+        "assets": ["apps/pet-adoption-db/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "pet-adoption-db:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "pet-adoption-db:build:development"
+        },
+        "production": {
+          "buildTarget": "pet-adoption-db:build:production"
+        }
+      }
+    }
+  }
+}

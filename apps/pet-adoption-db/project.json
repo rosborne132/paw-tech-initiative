@@ -53,6 +53,12 @@
           "buildTarget": "pet-adoption-db:build:production"
         }
       }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/pet-adoption-db/**/*.ts"]
+      }
     }
   }
 }

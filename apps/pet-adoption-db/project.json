@@ -8,19 +8,19 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'Would run flake8 apps/my-python-app'"
+        "command": "echo 'poetry run flake8 apps/pet-adoption-db'"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'Would run pytest apps/my-python-app'"
+        "command": "echo 'poetry run pytest apps/pet-adoption-db/tests'"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "echo 'Would run build for apps/my-python-app'"
+        "command": "echo 'poetry build'"
       }
     }
   }

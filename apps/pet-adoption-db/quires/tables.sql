@@ -1,9 +1,41 @@
+-- Clear tables
+DROP TABLE IF EXISTS organizations CASCADE;
+DROP TABLE IF EXISTS animals CASCADE;
+DROP TABLE IF EXISTS attributes CASCADE;
+DROP TABLE IF EXISTS environment CASCADE;
+
 -- Create ENUM types
-CREATE TYPE age_enum AS ENUM ('kitten', 'adult', 'senior', 'unknown');
-CREATE TYPE species_enum AS ENUM ('dog', 'cat');
-CREATE TYPE size_enum AS ENUM ('small', 'medium', 'large');
-CREATE TYPE status_enum AS ENUM ('available', 'adopted', 'pending');
-CREATE TYPE sex_enum AS ENUM ('male', 'female');
+DO $$ BEGIN
+    CREATE TYPE age_enum AS ENUM ('kitten', 'adult', 'senior');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE species_enum AS ENUM ('dog', 'cat');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE size_enum AS ENUM ('small', 'medium', 'large');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE sex_enum AS ENUM ('male', 'female');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Create storage table
+CREATE TABLE raw_data (
+    id SERIAL PRIMARY KEY,
+    source VARCHAR(50) NOT NULL, -- API source name
+    raw_data JSONB NOT NULL,     -- Store the raw API response as JSON
+    fetched_at TIMESTAMPTZ
+);
 
 -- Create Organizations table
 CREATE TABLE IF NOT EXISTS organizations (
@@ -15,17 +47,19 @@ CREATE TABLE IF NOT EXISTS organizations (
 
 -- Create Animals table
 CREATE TABLE IF NOT EXISTS animals (
-    id BIGINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    platform_animal_id VARCHAR(25) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    age age_enum NOT NULL,
+    age age_enum NULL,
     species species_enum NOT NULL,
     breed VARCHAR(100) UNIQUE,
     sex sex_enum NOT NULL,
-    size size_enum NOT NULL,
+    size size_enum NULL,
     description TEXT NULL,
-    status status_enum NOT NULL,
+    adopted BOOLEAN NOT NULL,
     organization_id VARCHAR(50) REFERENCES organizations(id),
-    posting_img_count SMALLINT NULL
+    posting_img_count SMALLINT NULL,
+    posting_source VARCHAR(255) NOT NULL,
 );
 
 -- Create Attributes table

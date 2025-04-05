@@ -1,63 +1,26 @@
 {
   "name": "pet-adoption-db",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/pet-adoption-db/src",
+  "root": "apps/pet-adoption-db",
+  "sourceRoot": "apps/pet-adoption-db",
   "projectType": "application",
   "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "platform": "node",
-        "outputPath": "dist/apps/pet-adoption-db",
-        "format": ["cjs"],
-        "bundle": false,
-        "main": "apps/pet-adoption-db/src/main.ts",
-        "tsConfig": "apps/pet-adoption-db/tsconfig.app.json",
-        "assets": ["apps/pet-adoption-db/src/assets"],
-        "generatePackageJson": true,
-        "esbuildOptions": {
-          "sourcemap": true,
-          "outExtension": {
-            ".js": ".js"
-          }
-        }
-      },
-      "configurations": {
-        "development": {},
-        "production": {
-          "esbuildOptions": {
-            "sourcemap": false,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
-        }
-      }
-    },
-    "serve": {
-      "executor": "@nx/js:node",
-      "defaultConfiguration": "development",
-      "dependsOn": ["build"],
-      "options": {
-        "buildTarget": "pet-adoption-db:build",
-        "runBuildTargetDependencies": false
-      },
-      "configurations": {
-        "development": {
-          "buildTarget": "pet-adoption-db:build:development"
-        },
-        "production": {
-          "buildTarget": "pet-adoption-db:build:production"
-        }
-      }
-    },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "nx:run-commands",
       "options": {
-        "lintFilePatterns": ["apps/pet-adoption-db/**/*.ts"]
+        "command": "echo 'Would run flake8 apps/my-python-app'"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'Would run pytest apps/my-python-app'"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'Would run build for apps/my-python-app'"
       }
     }
   }

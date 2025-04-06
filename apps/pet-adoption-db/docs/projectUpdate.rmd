@@ -50,7 +50,7 @@ What factors in pet adoption listings influence adoption speed and success? The 
 - [Sonoma county intake/outtake data](https://data.sonomacounty.ca.gov/Government/Animal-Shelter-Intake-and-Outcome/924a-vesw/data_preview) (Also has an API)
     - Format: CSV
 
-- [Adoptable pets](https://catalog.data.gov/dataset/adoptable-pets)
+- [Montgomery County Adoptable pets](https://catalog.data.gov/dataset/adoptable-pets)
     - Format: CSV
 
 ### Ingestion Plan

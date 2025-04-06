@@ -43,3 +43,6 @@ terraform apply
 ```
 
 6. **Verify Deployment**: Once the deployment is complete, the output will include the deployment URL. You can access your Airflow instance using this URL.
+
+### Running local python scripts
+

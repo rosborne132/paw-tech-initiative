@@ -1,4 +1,5 @@
 -- Clear tables
+DROP TABLE IF EXISTS raw_data CASCADE;
 DROP TABLE IF EXISTS organizations CASCADE;
 DROP TABLE IF EXISTS animals CASCADE;
 DROP TABLE IF EXISTS attributes CASCADE;
@@ -34,7 +35,7 @@ CREATE TABLE raw_data (
     id SERIAL PRIMARY KEY,
     source VARCHAR(50) NOT NULL, -- API source name
     raw_data JSONB NOT NULL,     -- Store the raw API response as JSON
-    fetched_at TIMESTAMPTZ
+    fetched_at TIMESTAMPTZ DEFAULT NOW() NOT NULL-- Timestamp of when the data was fetched
 );
 
 -- Create Organizations table

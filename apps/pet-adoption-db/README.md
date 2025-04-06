@@ -46,3 +46,7 @@ terraform apply
 
 ### Running local python scripts
 
+```sh
+poetry run python3 scripts/pullCsv.py
+```
+

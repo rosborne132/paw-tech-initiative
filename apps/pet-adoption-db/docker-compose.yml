@@ -21,11 +21,10 @@ services:
       - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
       - PF_CLIENT_ID=${PF_CLIENT_ID}
       - PF_CLIENT_SECRET=${PF_CLIENT_SECRET}
-      - DB_HOST=postgres  # Use the service name of the PostgreSQL container
-      - DB_NAME=airflow
-      - DB_USER=airflow
-      - DB_PASSWORD=airflow
-      - DB_PORT=5432
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs

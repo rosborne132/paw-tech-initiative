@@ -9,8 +9,7 @@ def connect_to_db():
             host=os.getenv("DB_HOST", "localhost"),
             database=os.getenv("DB_NAME", "airflow"),
             user=os.getenv("DB_USER", "airflow"),
-            password=os.getenv("DB_PASSWORD", "airflow"),
-            port=os.getenv("DB_PORT", 5432)  # Default to 5432 if DB_PORT is not set
+            password=os.getenv("DB_PASSWORD", "airflow")
         )
         return conn
     except Exception as e:

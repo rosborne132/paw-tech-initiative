@@ -4,9 +4,8 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import os
 import json
+import requests
 
-
-# TODO: This might not be needed if the airflow operator is good
 from utils.db_client import connect_to_db, insert_data_to_raw_data_table
 
 default_args = {
@@ -29,6 +28,54 @@ def prepare_headers(ti):
     """Prepare headers for the API call using the token."""
     token = ti.xcom_pull(task_ids="extract_token_task")  # Pull the token from the previous task
     return {"Authorization": f"Bearer {token}"}  # Return the headers
+
+def fetch_paginated_data(ti):
+    """Fetch paginated data from the API."""
+    base_url = "https://api.petfinder.com/v2/animals"
+    headers = ti.xcom_pull(task_ids="prepare_headers_task")  # Fetch headers from XCom
+    params = {
+        "after": (datetime.utcnow() - timedelta(days=1)).isoformat() + "Z",
+        "limit": 100,
+        "page": 1,
+    }
+    all_data = []
+
+    while True:
+        response = requests.get(base_url, headers=headers, params=params)
+        if response.status_code != 200:
+            print(f"Failed to fetch data: {response.status_code}")
+            break
+
+        data = response.json()
+        all_data.extend(data.get("animals", []))  # Append the animals data
+
+        # Check if there is a next page
+        pagination = data.get("pagination", {})
+        if not pagination.get("_links", {}).get("next"):
+            break
+
+        # Move to the next page
+        params["page"] += 1
+
+    # Push the collected data to XCom
+    ti.xcom_push(key="paginated_data", value=all_data)
+
+def insert_data_to_raw_data_table_task(ti):
+    """Insert data into the raw_data table."""
+    conn = connect_to_db()
+    if not conn:
+        print("Failed to connect to the database.")
+        return
+
+    # Fetch the collected data from XCom
+    all_data = ti.xcom_pull(task_ids="fetch_paginated_data_task", key="paginated_data")
+    print(f"Fetched {len(all_data)} records.")
+    print(f"Sample data: {all_data[:2]}")  # Print the first two records for debugging
+
+    # Insert data into the raw_data table
+    insert_data_to_raw_data_table(conn, all_data, "Pet Finder")
+
+    conn.close()
 
 with DAG(
     dag_id="fetch_petfinder_data",
@@ -63,16 +110,17 @@ with DAG(
         python_callable=prepare_headers,
     )
 
-    # Task 4: Make the API call using the token
-    api_call_task = SimpleHttpOperator(
-        task_id="api_call_task",
-        http_conn_id="petfinder_api",
-        endpoint="/v2/animals?after=2025-04-04T10:30:00Z",
-        method="GET",
-        headers="{{ task_instance.xcom_pull(task_ids='prepare_headers_task') }}",  # Use headers from XCom
-        log_response=True,
-        response_check=lambda response: response.status_code == 200,
+    # Task 4: Fetch paginated data
+    fetch_paginated_data_task = PythonOperator(
+        task_id="fetch_paginated_data_task",
+        python_callable=fetch_paginated_data,
+    )
+
+    # Task 5: Insert data into PostgreSQL
+    insert_data_task = PythonOperator(
+        task_id="insert_data_task",
+        python_callable=insert_data_to_raw_data_table_task,
     )
 
     # Define task dependencies
-    auth_task >> extract_token_task >> prepare_headers_task >> api_call_task
+    auth_task >> extract_token_task >> prepare_headers_task >> fetch_paginated_data_task >> insert_data_task

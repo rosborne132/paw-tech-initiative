@@ -33,9 +33,9 @@ END $$;
 -- Create storage table
 CREATE TABLE raw_data (
     id SERIAL PRIMARY KEY,
-    source VARCHAR(50) NOT NULL, -- API source name
-    raw_data JSONB NOT NULL,     -- Store the raw API response as JSON
-    fetched_at TIMESTAMPTZ DEFAULT NOW() NOT NULL-- Timestamp of when the data was fetched
+    source VARCHAR(50) NOT NULL,                    -- API source name
+    raw_data JSONB NOT NULL,                        -- Store the raw API response as JSON
+    fetched_at TIMESTAMPTZ DEFAULT NOW() NOT NULL   -- Timestamp of when the data was fetched
 );
 
 -- Create Organizations table

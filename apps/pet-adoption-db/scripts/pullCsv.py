@@ -12,7 +12,7 @@ def read_csv_file(file_path):
     try:
         with open(file_path, mode='r') as file:
             csv_reader = csv.DictReader(file)  # Automatically uses the first row as headers
-            data = [json.dumps(row) for row in csv_reader]  # Each row is a dictionary
+            data = [row for row in csv_reader]  # Each row is a dictionary
         return data
     except Exception as e:
         print(f"Error reading CSV file: {e}")

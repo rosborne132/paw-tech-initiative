@@ -2,6 +2,12 @@
 
 A project for collecting and processing pet adoption data. This project aims to discover any trends in successful pet adoptions
 
+### Build the image
+
+```sh
+docker build -t pet-adoption-db:latest .
+```
+
 ### Start the service
 
 Run the command below then navigate to http://localhost:8080

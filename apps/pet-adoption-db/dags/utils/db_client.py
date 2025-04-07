@@ -1,20 +1,16 @@
 import psycopg2
 import os
-
-DB_HOST = os.getenv("DB_HOST", "localhost")  # Default to "localhost" if DB_HOST is not set
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-DB_NAME = "pet_adoption_db"
-TABLE_NAME = "raw_data"
+import json
 
 def connect_to_db():
     """Establish a connection to the PostgreSQL database."""
     try:
         conn = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
+            host=os.getenv("DB_HOST", "localhost"),
+            database=os.getenv("DB_NAME", "airflow"),
+            user=os.getenv("DB_USER", "airflow"),
+            password=os.getenv("DB_PASSWORD", "airflow"),
+            port=os.getenv("DB_PORT", 5432)  # Default to 5432 if DB_PORT is not set
         )
         return conn
     except Exception as e:
@@ -31,13 +27,15 @@ def insert_data_to_raw_data_table(conn, data, source):
     try:
         cursor = conn.cursor()
         for row in data:
+            json_data = json.dumps(row)
+
             # Insert into the raw_data table
             cursor.execute(
                 """
                 INSERT INTO raw_data (source, raw_data)
                 VALUES (%s, %s)
                 """,
-                (source, row)
+                (source, json_data)
             )
         conn.commit()
         cursor.close()

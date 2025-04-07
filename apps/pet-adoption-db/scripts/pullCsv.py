@@ -25,8 +25,11 @@ def main():
 
     montgomery_county_data = read_csv_file("./data/adoptable_pets_catalog.csv")
     sonoma_county_data = read_csv_file("./data/animal_shelter_intake_outcome_mar_2025.csv")
-    if montgomery_county_data and sonoma_county_data:
+
+    if montgomery_county_data:
         insert_data_to_raw_data_table(conn, montgomery_county_data, "Montgomery County Animal Services")
+
+    if sonoma_county_data:
         insert_data_to_raw_data_table(conn, sonoma_county_data, "Sonoma County Department of Health Services")
 
     conn.close()

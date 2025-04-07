@@ -25,16 +25,10 @@ def main():
         conn_type="http",
         host="https://api.rescuegroups.org",
     )
-    long_beach_conn = Connection(
-        conn_id="long_beach_api",
-        conn_type="http",
-        host="https://data.longbeach.gov",
-    )
 
     # Create connections
     create_connection("petfinder_api", pet_finder_conn)
     create_connection("rescue_group_api", rescue_group_conn)
-    create_connection("long_beach_api", long_beach_conn)
 
 if __name__ == "__main__":
     main()

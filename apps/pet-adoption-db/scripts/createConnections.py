@@ -20,15 +20,9 @@ def main():
         conn_type="http",
         host="https://api.petfinder.com",
     )
-    rescue_group_conn = Connection(
-        conn_id="rescue_group_api",
-        conn_type="http",
-        host="https://api.rescuegroups.org",
-    )
 
     # Create connections
     create_connection("petfinder_api", pet_finder_conn)
-    create_connection("rescue_group_api", rescue_group_conn)
 
 if __name__ == "__main__":
     main()

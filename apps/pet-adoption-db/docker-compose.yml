@@ -21,6 +21,7 @@ services:
       - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
       - PF_CLIENT_ID=${PF_CLIENT_ID}
       - PF_CLIENT_SECRET=${PF_CLIENT_SECRET}
+      - RC_API_KEY=${RC_API_KEY}
       - DB_HOST=${DB_HOST}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}

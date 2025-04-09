@@ -6,7 +6,8 @@ import os
 import json
 import requests
 
-from utils.db_client import connect_to_db, insert_data_to_raw_data_table
+from utils.db_client import connect_to_db
+from utils.client_utils import insert_data_to_raw_data_table_task
 
 default_args = {
     'owner': 'airflow',
@@ -60,23 +61,6 @@ def fetch_paginated_data(ti):
     # Push the collected data to XCom
     ti.xcom_push(key="paginated_data", value=all_data)
 
-def insert_data_to_raw_data_table_task(ti):
-    """Insert data into the raw_data table."""
-    conn = connect_to_db()
-    if not conn:
-        print("Failed to connect to the database.")
-        return
-
-    # Fetch the collected data from XCom
-    all_data = ti.xcom_pull(task_ids="fetch_paginated_data_task", key="paginated_data")
-    print(f"Fetched {len(all_data)} records.")
-    print(f"Sample data: {all_data[:2]}")  # Print the first two records for debugging
-
-    # Insert data into the raw_data table
-    insert_data_to_raw_data_table(conn, all_data, "Pet Finder")
-
-    conn.close()
-
 with DAG(
     dag_id="fetch_petfinder_data",
     start_date=datetime(2023, 1, 1),
@@ -120,6 +104,12 @@ with DAG(
     insert_data_task = PythonOperator(
         task_id="insert_data_task",
         python_callable=insert_data_to_raw_data_table_task,
+        op_kwargs={
+            "conn": connect_to_db(),  # Pass the database connection
+            "task_id": "fetch_paginated_data_task",  # Task ID to pull data from
+            "task_key": "paginated_data",  # Key to pull data from XCom
+            "source_name": "Pet Finder",  # Source name
+        },
     )
 
     # Define task dependencies

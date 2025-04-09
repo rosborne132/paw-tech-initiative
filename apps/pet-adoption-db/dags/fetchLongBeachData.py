@@ -1,5 +1,4 @@
 from airflow import DAG
-from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import os
@@ -7,6 +6,7 @@ import json
 import requests
 
 from utils.db_client import connect_to_db, insert_data_to_raw_data_table
+from utils.client_utils import insert_data_to_raw_data_table_task
 
 default_args = {
     'owner': 'airflow',
@@ -55,28 +55,6 @@ def fetch_data(ti):
     # Push the collected data to XCom
     ti.xcom_push(key="all_data", value=all_data)
 
-def insert_data_to_raw_data_table_task(ti):
-    """Insert data into the raw_data table."""
-    conn = connect_to_db()
-    if not conn:
-        print("Failed to connect to the database.")
-        return
-
-    # Fetch the collected data from XCom
-    all_data = ti.xcom_pull(task_ids="fetch_data_task", key="all_data")
-
-    if not all_data or len(all_data) == 0:
-        print("No data to insert.")
-        return
-
-    print(f"Fetched {len(all_data)} records.")
-    print(f"Sample data: {all_data[:1]}")  # Print the first record for debugging
-
-    # Insert data into the raw_data table
-    insert_data_to_raw_data_table(conn, all_data, "City of Long Beach Animal Shelter")
-
-    conn.close()
-
 with DAG(
     dag_id="fetch_long_beach_data",
     start_date=datetime(2023, 1, 1),
@@ -93,6 +71,12 @@ with DAG(
     insert_data_task = PythonOperator(
         task_id="insert_data_task",
         python_callable=insert_data_to_raw_data_table_task,
+        op_kwargs={
+            "conn": connect_to_db(),  # Pass the database connection
+            "task_id": "fetch_data_task",  # Task ID to pull data from
+            "task_key": "all_data",  # Key to pull data from XCom
+            "source_name": "City of Long Beach Animal Shelter",  # Source name
+        },
     )
 
     # Define task dependencies

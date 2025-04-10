@@ -40,16 +40,18 @@ CREATE TABLE raw_data (
 
 -- Create Organizations table
 CREATE TABLE IF NOT EXISTS organizations (
-    id VARCHAR(50) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    platform_organization_id VARCHAR(50) NULL,
     name VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
-    state VARCHAR(2) NOT NULL
+    state VARCHAR(2) NOT NULL,
+    posting_source VARCHAR(255) NOT NULL,
 );
 
 -- Create Animals table
 CREATE TABLE IF NOT EXISTS animals (
     id SERIAL PRIMARY KEY,
-    platform_animal_id VARCHAR(25) NOT NULL,
+    platform_animal_id VARCHAR(50) NULL,
     name VARCHAR(255) NOT NULL,
     age age_enum NULL,
     species species_enum NOT NULL,

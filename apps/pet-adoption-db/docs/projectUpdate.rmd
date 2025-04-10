@@ -86,7 +86,7 @@ Stores general information about the animals.
 | Column Name | Data Type | Constraints | Description |
 | --- | --- | --- | --- |
 | `id` | SERIAL | PRIMARY KEY | Unique ID for each animal |
-| `platform_animal_id` | VARCHAR(25) | NOT NULL | animal id for the platform it came from |
+| `platform_animal_id` | VARCHAR(25) | NULL | animal id for the platform it came from |
 | `name` | VARCHAR(255) | NOT NULL | Animal’s name |
 | `age` | ENUM | NULL | kitten, adult, senior |
 | `species` | ENUM | NOT NULL | dog, cat |
@@ -131,10 +131,12 @@ Stores information about the organizations managing adoptions.
 
 | Column Name | Data Type | Constraints | Description |
 | --- | --- | --- | --- |
-| `id` | VARCHAR(50) | PRIMARY KEY | Unique organization ID |
+| `id` | SERIAL | PRIMARY KEY | Unique organization ID |
+| `platform_organization_id` | VARCHAR(25) | NULL | Organization ID for the platform it came from |
 | `name` | VARCHAR(255) | NOT NULL | Organization name |
 | `city` | VARCHAR(255) | NOT NULL | Operating city |
 | `state` | VARCHAR(50) | NOT NULL | Operating state |
+| `posting_source` | VARCHAR(255) | NOT NULL | The source of the pet posting |
 
 ### Anticipated Data Transformation
 

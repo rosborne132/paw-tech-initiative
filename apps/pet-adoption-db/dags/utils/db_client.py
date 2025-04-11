@@ -41,3 +41,23 @@ def insert_data_to_raw_data_table(conn, data, source):
         print("Data inserted successfully.")
     except Exception as e:
         print(f"Error inserting data: {e}")
+
+def delete_row_by_id(conn, row_id):
+    """
+    Delete a row from the raw_data table by ID.
+    :param conn: Database connection object
+    :param row_id: ID of the row to delete
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            DELETE FROM raw_data WHERE id = %s
+            """,
+            (row_id)
+        )
+        conn.commit()
+        cursor.close()
+        print(f"Row with ID {row_id} deleted successfully.")
+    except Exception as e:
+        print(f"Error deleting row: {e}")

@@ -57,6 +57,7 @@ def fetch_data(ti):
 
 with DAG(
     dag_id="fetch_long_beach_data",
+    default_args=default_args,
     start_date=datetime(2023, 1, 1),
     schedule_interval=timedelta(hours=24),
     catchup=False,

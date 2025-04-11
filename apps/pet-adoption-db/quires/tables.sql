@@ -38,6 +38,28 @@ CREATE TABLE raw_data (
     fetched_at TIMESTAMPTZ DEFAULT NOW() NOT NULL   -- Timestamp of when the data was fetched
 );
 
+CREATE TABLE in_flight_data (
+    id SERIAL PRIMARY KEY,
+    source VARCHAR(50) NOT NULL,                    -- API source name
+    raw_data JSONB NOT NULL                         -- Store the raw API response as JSON
+);
+
+-- Create a function to handle the trigger
+CREATE OR REPLACE FUNCTION insert_into_in_flight_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO in_flight_data (source, raw_data)
+    VALUES (NEW.source, NEW.raw_data);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger on the raw_data table
+CREATE TRIGGER after_insert_raw_data
+AFTER INSERT ON raw_data
+FOR EACH ROW
+EXECUTE FUNCTION insert_into_in_flight_data();
+
 -- Create Organizations table
 CREATE TABLE IF NOT EXISTS organizations (
     id SERIAL PRIMARY KEY,

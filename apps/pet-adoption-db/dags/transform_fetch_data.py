@@ -24,7 +24,7 @@ def fetch_data_from_in_flight_table(ti):
         return
 
     # Define the SQL query to fetch data from the in_flight table
-    sql_query = "SELECT * FROM in_flight_data LIMIT 1000;"
+    sql_query = "SELECT * FROM in_flight_data LIMIT 101;"
 
     # Execute the SQL query
     cursor = db_connection.cursor()
@@ -52,14 +52,16 @@ def transform_data(ti):
         raw_data = json.loads(row).get("raw_data")
         source = json.loads(row).get("source")
 
+        print("--------------------------------------------")
         try:
             transform_and_insert_data_by_source(db_connection, raw_data, source)
+
+            print(f"Deleting row id: {row_id}")
+            delete_row_by_id(db_connection, row_id)
         except Exception as e:
             print(f"Error creating JSON object: {e}")
+            print("Moving to next row...")
             continue
-
-        # delete_row_by_id(db_connection, row_id)
-
 
 with DAG(
     dag_id="transform_fetch_data",

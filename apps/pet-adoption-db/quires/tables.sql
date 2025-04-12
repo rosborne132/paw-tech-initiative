@@ -63,46 +63,53 @@ EXECUTE FUNCTION insert_into_in_flight_data();
 -- Create Organizations table
 CREATE TABLE IF NOT EXISTS organizations (
     id SERIAL PRIMARY KEY,
-    platform_organization_id VARCHAR(50) NULL,
-    name VARCHAR(255) NOT NULL,
-    city VARCHAR(255) NOT NULL,
-    state VARCHAR(2) NOT NULL,
-    posting_source VARCHAR(255) NOT NULL,
+    platform_organization_id VARCHAR(50) NULL DEFAULT NULL,
+    name VARCHAR(255) NOT NULL DEFAULT NULL,
+    city VARCHAR(255) NOT NULL DEFAULT NULL,
+    state VARCHAR(2) NOT NULL DEFAULT NULL,
+    posting_source VARCHAR(255) NOT NULL DEFAULT NULL
 );
 
 -- Create Animals table
 CREATE TABLE IF NOT EXISTS animals (
     id SERIAL PRIMARY KEY,
-    platform_animal_id VARCHAR(50) NULL,
-    name VARCHAR(255) NOT NULL,
-    age age_enum NULL,
+    platform_animal_id VARCHAR(50) NULL DEFAULT NULL,
+    name VARCHAR(255) NOT NULL DEFAULT NULL,
+    age age_enum NULL DEFAULT NULL,
     species species_enum NOT NULL,
-    breed VARCHAR(100) UNIQUE,
+    breed VARCHAR(100) NOT NULL,
     sex sex_enum NOT NULL,
-    size size_enum NULL,
-    description TEXT NULL,
+    size size_enum NULL DEFAULT NULL,
+    description TEXT NULL DEFAULT NULL,
     adopted BOOLEAN NOT NULL,
-    organization_id VARCHAR(50) REFERENCES organizations(id),
-    posting_img_count SMALLINT NULL,
-    posting_source VARCHAR(255) NOT NULL,
+    organization_id INTEGER REFERENCES organizations(id),
+    posting_img_count SMALLINT NULL DEFAULT NULL,
+    posting_source VARCHAR(255) NOT NULL
 );
 
 -- Create Attributes table
 CREATE TABLE IF NOT EXISTS attributes (
     id SERIAL PRIMARY KEY,
     animal_id BIGINT REFERENCES animals(id) ON DELETE CASCADE,
-    spayed_neutered BOOLEAN NULL,
-    house_trained BOOLEAN NULL,
-    declawed BOOLEAN NULL,
-    special_needs BOOLEAN NULL,
-    shots_current BOOLEAN NULL
+    spayed_neutered BOOLEAN NULL DEFAULT NULL,
+    house_trained BOOLEAN NULL DEFAULT NULL,
+    declawed BOOLEAN NULL DEFAULT NULL,
+    special_needs BOOLEAN NULL DEFAULT NULL,
+    shots_current BOOLEAN NULL DEFAULT NULL
 );
 
 -- Create Environment table
 CREATE TABLE IF NOT EXISTS environment (
     id SERIAL PRIMARY KEY,
     animal_id BIGINT REFERENCES animals(id) ON DELETE CASCADE,
-    dogs_ok BOOLEAN NULL,
-    cats_ok BOOLEAN NULL,
-    kids_ok BOOLEAN NULL
+    dogs_ok BOOLEAN NULL DEFAULT NULL,
+    cats_ok BOOLEAN NULL DEFAULT NULL,
+    kids_ok BOOLEAN NULL DEFAULT NULL
 );
+
+-- Insert data into the organization table
+INSERT INTO organizations (platform_organization_id, name, city, state, posting_source)
+VALUES
+    ('1', 'Sonoma Department of Health Services', 'Santa Rosa A', 'CA', 'data.sonomacounty.ca.gov'),
+    ('2', 'Montgomery County Animal Services', 'Rockville', 'MD', 'catalog.data.gov'),
+    ('3', 'City of Long Beach Animal Shelter', 'Long Beach', 'CA', 'data.longbeach.gov')

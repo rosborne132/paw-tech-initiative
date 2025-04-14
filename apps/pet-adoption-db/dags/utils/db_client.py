@@ -105,8 +105,8 @@ def insert_animal_data(conn, data):
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO animals (platform_animal_id, name, age, species, breed, sex, size, description, adopted, organization_id, posting_img_count, posting_source)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO animals (platform_animal_id, name, age, species, breed, sex, size, description, adopted, organization_id, posting_img_count, posting_source, intake_date, outcome_date)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
             (
@@ -121,7 +121,9 @@ def insert_animal_data(conn, data):
                 data.get("adopted"),
                 data.get("organization_id"),
                 data.get("posting_img_count"),
-                data.get("posting_source")
+                data.get("posting_source"),
+                data.get("intake_date"),
+                data.get("outcome_date")
             )
         )
         animal_id = cursor.fetchone()[0]

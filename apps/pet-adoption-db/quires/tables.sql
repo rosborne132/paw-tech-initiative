@@ -84,7 +84,9 @@ CREATE TABLE IF NOT EXISTS animals (
     adopted BOOLEAN NOT NULL,
     organization_id INTEGER REFERENCES organizations(id),
     posting_img_count SMALLINT NULL DEFAULT NULL,
-    posting_source VARCHAR(255) NOT NULL
+    posting_source VARCHAR(255) NOT NULL,
+    intake_date TIMESTAMPTZ NULL DEFAULT NULL,
+    outcome_date TIMESTAMPTZ NULL DEFAULT NULL
 );
 
 -- Create Attributes table

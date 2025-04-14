@@ -2,6 +2,12 @@ import json
 
 from utils.db_client import connect_to_db, get_organizations_id_by_name, insert_organization_data, insert_data_to_raw_data_table, insert_animal_data
 
+from utils.pet_finder_client import PetFinderClient
+from utils.recuse_groups_client import RescueGroupsClient
+
+PetFinderClient = PetFinderClient()
+RescueGroupsClient = RescueGroupsClient()
+
 def insert_data_to_raw_data_table_task(ti, conn, task_id, task_key, source_name):
     """Insert data into the raw_data table."""
     if not conn:

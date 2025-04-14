@@ -92,6 +92,12 @@ pet_finder_source_label = "Pet Finder"
 rescue_groups_source_label = "Rescue Groups"
 
 def sonoma_county(conn, data):
+    """
+    Sonoma County Department of Health Services case executed
+    :param conn: Database connection
+    :param data: Data to transform
+    :return: void
+    """
     print("Sonoma County Department of Health Services case executed")
     print(f"Data: {data}")
 
@@ -144,6 +150,12 @@ def sonoma_county(conn, data):
     })
 
 def montgomery_county(conn, data):
+    """
+    Montgomery County Animal Services case executed
+    :param conn: Database connection
+    :param data: Data to transform
+    :return: void
+    """
     print("Montgomery County Animal Services case executed")
     print(f"Data: {data}")
 
@@ -153,8 +165,6 @@ def montgomery_county(conn, data):
     if species != "dog" and species != "cat":
         print(f"Species not supported: {species}")
         return
-
-    print("Species supported")
 
     # Convert and clean the data ---
     age = get_montgomery_county_age_label(data.get("Pet Age"))
@@ -197,19 +207,56 @@ def montgomery_county(conn, data):
     })
 
 def long_beach(conn, data):
+    """
+    City of Long Beach Animal Shelter case executed
+    :param conn: Database connection
+    :param data: Data to transform
+    :return: void
+    """
     print("City of Long Beach Animal Shelter case executed")
     print(f"Data: {data}")
 
+    outcome_type = data.get("outcome_type")
+    species = data.get("animal_type").lower()
+
     # Checking the data -------------
+    if outcome_type != "ADOPTION":
+        print(f"Outcome type not supported: {outcome_type}")
+        return
+
+    if species != "dog" and species != "cat":
+        print(f"Species not supported: {species}")
+        return
 
     # Convert and clean the data ---
+    gender = determine_gender(data.get("sex"))
 
     # Creating the organization item ---
+    organization_id = create_organization_data_with_payload(conn, {
+        "platform_organization_id": None,
+        "name": long_beach_source_label,
+        "city": "Long Beach",
+        "state": "CA",
+        "posting_source": long_beach_source_label
+    })
 
     # Creating the animal item ---------
-
-    raise ValueError("Don't continue")
-    # TODO
+    create_animal_data(conn, {
+        "platform_animal_id": data.get("animal_id"),
+        "name": format_string(data.get("animal_name")),
+        "age": None,
+        "species": species,
+        "breed": None,
+        "sex": gender,
+        "size": None,
+        "description": data.get("primary_color"),
+        "adopted": True,
+        "organization_id": organization_id,
+        "posting_img_count": None,
+        "posting_source": long_beach_source_label,
+        "intake_date": data.get("intake_date"),
+        "outcome_date": data.get("outcome_date")
+    })
 
 def pet_finder(conn, data):
     print("Pet Finder case executed")

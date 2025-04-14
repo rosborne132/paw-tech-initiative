@@ -1,0 +1,56 @@
+{
+    "organization": {
+        "id": "WA761",
+        "name": "Paws & Claws Pet Rescue",
+        "email": "info@pawsandclawspetrescue.com",
+        "phone": "(425) 954-0555",
+        "address": {
+            "address1": null,
+            "address2": null,
+            "city": "Seattle",
+            "state": "WA",
+            "postcode": "98115",
+            "country": "US"
+        },
+        "hours": {
+            "monday": null,
+            "tuesday": null,
+            "wednesday": null,
+            "thursday": null,
+            "friday": null,
+            "saturday": null,
+            "sunday": null
+        },
+        "url": "https://www.petfinder.com/member/us/wa/seattle/paws-and-claws-pet-rescue-wa761/?referrer_id=de7250cc-79ba-4204-b3ff-c02991ee5f09",
+        "website": "https://pawsandclawspetrescue.com",
+        "mission_statement": "Assist local communities with spay, neuter, rescue, and adoptions.",
+        "adoption": {
+            "policy": null,
+            "url": null
+        },
+        "social_media": {
+            "facebook": "https://www.facebook.com/profile.php?id=100090010820932&sk=about",
+            "twitter": null,
+            "youtube": null,
+            "instagram": null,
+            "pinterest": null
+        },
+        "photos": [
+            {
+                "small": "https://dl5zpyw5k3jeb.cloudfront.net/organization-photos/52763/1/?bust=1676413572&width=100",
+                "medium": "https://dl5zpyw5k3jeb.cloudfront.net/organization-photos/52763/1/?bust=1676413572&width=300",
+                "large": "https://dl5zpyw5k3jeb.cloudfront.net/organization-photos/52763/1/?bust=1676413572&width=600",
+                "full": "https://dl5zpyw5k3jeb.cloudfront.net/organization-photos/52763/1/?bust=1676413572"
+            }
+        ],
+        "distance": null,
+        "_links": {
+            "self": {
+                "href": "/v2/organizations/wa761"
+            },
+            "animals": {
+                "href": "/v2/animals?organization=wa761"
+            }
+        }
+    }
+}

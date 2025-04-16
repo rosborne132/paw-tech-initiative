@@ -2,7 +2,9 @@ from datetime import datetime
 import json
 import re
 
-from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, determine_age_label_by_month_count, create_animal_data_with_payload, determine_age_by_mapping, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder, determine_species, create_organization_data_for_rescue_groups, determine_rescue_groups_breed_by_id
+from utils.client_utils import create_organization_data_with_payload, create_animal_data_with_payload, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder, create_organization_data_for_rescue_groups, determine_rescue_groups_breed_by_id
+
+from utils.mapping_utils import determine_age_by_mapping, determine_gender, determine_size, determine_species, determine_age_label_by_month_count
 
 def create_json_object(data):
     """

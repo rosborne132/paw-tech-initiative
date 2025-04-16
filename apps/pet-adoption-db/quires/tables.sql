@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS environment CASCADE;
 
 -- Create ENUM types
 DO $$ BEGIN
-    CREATE TYPE age_enum AS ENUM ('kitten', 'adult', 'senior');
+    CREATE TYPE age_enum AS ENUM ('young', 'adult', 'senior');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;

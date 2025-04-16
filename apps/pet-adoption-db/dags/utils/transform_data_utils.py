@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import re
 
-from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, create_animal_data, determine_age_label_by_month_count
+from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, create_animal_data, determine_age_label_by_month_count, create_animal_data_with_payload, determine_age_by_mapping, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder
 
 def create_json_object(data):
     """
@@ -109,7 +109,7 @@ def sonoma_county(conn, data):
         print(f"Outcome type not supported: {outcome_type}")
         return
 
-    if species != "dog" and species != "cat":
+    if species not in ["dog", "cat"]:
         print(f"Species not supported: {species}")
         return
 
@@ -132,7 +132,7 @@ def sonoma_county(conn, data):
     })
 
     # Creating the animal item ---------
-    create_animal_data(conn, {
+    create_animal_data_with_payload(conn, {
         "platform_animal_id": data.get("Animal ID"),
         "name": format_string(data.get("Name")),
         "age": determine_age_label_by_month_count(age),
@@ -162,7 +162,7 @@ def montgomery_county(conn, data):
     species = data.get("Animal Type").lower()
 
     # Checking the data -------------
-    if species != "dog" and species != "cat":
+    if species not in ["dog", "cat"]:
         print(f"Species not supported: {species}")
         return
 
@@ -189,7 +189,7 @@ def montgomery_county(conn, data):
     })
 
     # Creating the animal item ---------
-    create_animal_data(conn, {
+    create_animal_data_with_payload(conn, {
         "platform_animal_id": data.get("Animal ID"),
         "name": format_string(data.get("Pet name")),
         "age": age,
@@ -224,7 +224,7 @@ def long_beach(conn, data):
         print(f"Outcome type not supported: {outcome_type}")
         return
 
-    if species != "dog" and species != "cat":
+    if species not in ["dog", "cat"]:
         print(f"Species not supported: {species}")
         return
 
@@ -241,7 +241,7 @@ def long_beach(conn, data):
     })
 
     # Creating the animal item ---------
-    create_animal_data(conn, {
+    create_animal_data_with_payload(conn, {
         "platform_animal_id": data.get("animal_id"),
         "name": format_string(data.get("animal_name")),
         "age": None,
@@ -263,19 +263,56 @@ def pet_finder(conn, data):
     print(f"Data: {data}")
 
     # Checking the data -------------
+    species = data.get("species").lower()
+
+    if species not in ["dog", "cat"]:
+        print(f"Species not supported: {species}")
+        return
 
     # Convert and clean the data ---
+    outcome_date = data.get("status_changed_at") if data.get("status") == "adopted" else None
 
     # Creating the organization item ---
+    organization_id = create_organization_data_for_pet_finder(conn, {
+        "platform_organization_id": data.get("organization_id"),
+        "posting_source": pet_finder_source_label
+    })
 
     # Creating the animal item ---------
+    animal_id = create_animal_data_with_payload(conn, {
+        "platform_animal_id": data.get("id"),
+        "name": format_string(data.get("name")),
+        "age": determine_age_by_mapping(data.get("age")),
+        "species": species,
+        "breed": data.get("breeds").get("primary"),
+        "sex": determine_gender(data.get("gender")),
+        "size": determine_size(data.get("size")),
+        "description": data.get("description"),
+        "adopted": data.get("status") == "adopted",
+        "organization_id": organization_id,
+        "posting_img_count": len(data.get("photos")),
+        "posting_source": pet_finder_source_label,
+        "intake_date": data.get("published_at"),
+        "outcome_date": outcome_date
+    })
 
     # Creating the environment item ----
+    create_environment_data_with_payload(conn, {
+        "animal_id": animal_id,
+        "cats_ok": data.get("environment").get("cats"),
+        "dogs_ok": data.get("environment").get("dogs"),
+        "kids_ok": data.get("environment").get("children")
+    })
 
     # Creating the attribute item ------
-
-    raise ValueError("Don't continue")
-    # TODO
+    create_attribute_data_with_payload(conn, {
+        "animal_id": animal_id,
+        "spayed_neutered": data.get("attributes").get("spayed_neutered"),
+        "house_trained": data.get("attributes").get("house_trained"),
+        "declawed": data.get("attributes").get("declawed"),
+        "special_needs": data.get("attributes").get("special_needs"),
+        "shots_current": data.get("attributes").get("shots_current")
+    })
 
 def rescue_group(conn, data):
     print("Rescue Groups case executed")

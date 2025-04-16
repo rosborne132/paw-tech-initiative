@@ -1,0 +1,38 @@
+{
+    "meta": {
+        "count": 1,
+        "countReturned": 1,
+        "pageReturned": 1,
+        "limit": 25,
+        "pages": 1,
+        "transactionId": "rPHQUhcbXMwZ"
+    },
+    "data": [
+        {
+            "type": "orgs",
+            "id": "1883",
+            "attributes": {
+                "name": "LIFE Animal Rescue",
+                "street": "P.O. Box 1431",
+                "city": "Agoura Hills",
+                "state": "CA",
+                "postalcode": "91376",
+                "postalcodePlus4": "1431",
+                "country": "United States",
+                "phone": "(818) 707-2007",
+                "email": "lifeanimalrescue@gmail.com",
+                "url": "http://lifeanimalrescue.org",
+                "serveAreas": "Ventura and Los Angeles Counties",
+                "adoptionProcess": "application, home visit for dogs, $125 for cats, $200 for dogs, contract.",
+                "about": "animals rescued from local shelters.  all spayed/neutered prior to placement and vaccinated. Non profit 501 c3 organization.",
+                "services": "adoptions",
+                "type": "Rescue",
+                "isCommonapplicationAccepted": false,
+                "lat": 34.123199462890625,
+                "lon": -118.7699966430664,
+                "coordinates": "34.1232, -118.77",
+                "citystate": "Agoura Hills, CA"
+            }
+        }
+    ]
+}

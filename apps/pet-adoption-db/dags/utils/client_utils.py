@@ -1,6 +1,6 @@
 import json
 
-from utils.db_client import connect_to_db, get_organizations_id_by_name, insert_organization_data, insert_data_to_raw_data_table, insert_animal_data
+from utils.db_client import connect_to_db, get_organizations_id_by_name, insert_organization_data, insert_data_to_raw_data_table, insert_animal_data, get_animal_id_by_by_name
 
 from utils.pet_finder_client import PetFinderClient
 from utils.recuse_groups_client import RescueGroupsClient
@@ -55,7 +55,7 @@ def create_organization_data_with_payload(conn, organization_payload):
     :return: Organization id
     """
     try:
-        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
+        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"), organization_payload.get("platform_organization_id"))
 
         if not organization_id:
             print("Organization not found")
@@ -67,6 +67,82 @@ def create_organization_data_with_payload(conn, organization_payload):
     except Exception as e:
         conn.rollback()  # Rollback the transaction on error
         print(f"Error inserting organization data: {e}")
+        raise ValueError(e)
+
+def create_animal_data_with_payload(conn, animal_payload):
+    """
+    Create or update animal data in the database.
+    :param conn: Database connection object
+    :param animal_payload: JSON string containing animal data
+    :return: Animal id
+    """
+    try:
+        animal_id = insert_animal_data(conn, animal_payload)
+        print(f"Animal id: {animal_id}")
+        return animal_id
+    except Exception as e:
+        conn.rollback()  # Rollback the transaction on error
+        print(f"Error inserting or updating animal data: {e}")
+        raise ValueError(e)
+
+def create_organization_data_for_pet_finder(conn, organization_payload):
+    """
+    Create organization data for Pet Finder in the database.
+    :param conn: Database connection object
+    :param organization_payload: JSON string containing organization data
+    :return: Organization id
+    """
+
+    ## Check if the organization already exists
+    organization_id = get_organizations_id_by_source(conn, organization_payload.get("posting_source"), organization_payload.get("platform_organization_id"))
+
+    if not organization_id:
+        print("Organization not found")
+        ## Use pet finder client to get the organization data
+        organization_response = PetFinderClient.get_organization_data(organization_payload.get("platform_organization_id"))
+        print(f"Organization response: {organization_response}")
+        ## Create the organization data
+        organization_id = create_organization_data_with_payload(conn, {
+            "platform_organization_id": organization_payload.get("platform_organization_id"),
+            "name": organization_response.get("name"),
+            "city": organization_response.get("address").get("city"),
+            "state": organization_response.get("address").get("state"),
+            "posting_source": organization_payload.get("posting_source")
+        })
+
+    print(f"Organization id: {organization_id}")
+    return organization_id
+
+def create_attribute_data_with_payload(conn, attribute_payload):
+    """
+    Create attribute data in the database.
+    :param conn: Database connection object
+    :param attribute_payload: JSON string containing attribute data
+    :return: Attribute id
+    """
+    try:
+        attribute_id = insert_attribute_data(conn, attribute_payload)
+        print(f"Attribute id: {attribute_id}")
+        return attribute_id
+    except Exception as e:
+        conn.rollback()  # Rollback the transaction on error
+        print(f"Error inserting or updating attribute data: {e}")
+        raise ValueError(e)
+
+def create_environment_data_with_payload(conn, environment_payload):
+    """
+    Create environment data in the database.
+    :param conn: Database connection object
+    :param environment_payload: JSON string containing environment data
+    :return: Environment id
+    """
+    try:
+        environment_id = insert_environment_data(conn, environment_payload)
+        print(f"Environment id: {environment_id}")
+        return environment_id
+    except Exception as e:
+        conn.rollback()  # Rollback the transaction on error
+        print(f"Error inserting or updating environment data: {e}")
         raise ValueError(e)
 
 def determine_gender(gender):
@@ -97,11 +173,28 @@ def determine_size(size):
         "PUPPY": "small",
         "TOY": "small",
         "LARGE": "large",
+        "Large": "large",
         "MED": "medium",
-        "SMALL": "small"
+        "Medium": "medium",
+        "SMALL": "small",
+        "Small": "small",
     }
 
     return size_map.get(size)
+
+def determine_age_by_mapping(age):
+    """
+    Determine the age of the animal based on a mapping.
+    :param age: Age string from the data source
+    :return: Age string for the database
+    """
+    age_map = {
+        "Young": "young",
+        "Adult": "adult",
+        "Senior": "senior",
+    }
+
+    return age_map.get(age)
 
 def determine_age_label_by_month_count(month_count):
     """
@@ -110,7 +203,7 @@ def determine_age_label_by_month_count(month_count):
     :return: Age label ('kitten', 'adult', 'senior')
     """
     if month_count < 12:
-        return "kitten"
+        return "young"
     elif month_count < 96:  # Less than 8 years
         return "adult"
     else:

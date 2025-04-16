@@ -24,7 +24,7 @@ def fetch_data_from_in_flight_table(ti):
         return
 
     # Define the SQL query to fetch data from the in_flight table
-    sql_query = "SELECT * FROM in_flight_data LIMIT 10;"
+    sql_query = "SELECT * FROM in_flight_data LIMIT 101;"
 
     # Execute the SQL query
     cursor = db_connection.cursor()

@@ -62,7 +62,6 @@ def create_organization_data_with_payload(conn, organization_payload):
             print("Inserting organization data")
             organization_id = insert_organization_data(conn, organization_payload)
 
-        print(f"Organization id: {organization_id}")
         return organization_id
     except Exception as e:
         conn.rollback()  # Rollback the transaction on error
@@ -122,6 +121,44 @@ def create_organization_data_for_pet_finder(conn, organization_payload):
         print(f"Error creating organization data: {e}")
         raise ValueError(e)
 
+def create_organization_data_for_rescue_groups(conn, organization_payload):
+    """
+    Create organization data for Rescue Groups in the database.
+    :param
+    conn: Database connection object
+    :param organization_payload: JSON string containing organization data
+    :return: Organization id
+    """
+    try:
+        # Check if the organization already exists
+        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
+
+        if not organization_id:
+            print("Organization not found by name - first check")
+            # Use RescueGroupsClient to get the organization data
+            try:
+                organization_response = RescueGroupsClient.fetch_organization_by_id(organization_payload.get("platform_organization_id"))
+                print(f"Organization response: {organization_response}")
+            except Exception as e:
+                print(f"Error fetching organizations data: {e}")
+                raise ValueError("Failed to fetch organization data from RescueGroups")
+
+            # Create the organization data
+            organization_id = create_organization_data_with_payload(conn, {
+                "platform_organization_id": organization_payload.get("platform_organization_id"),
+                "name": organization_response.get("attributes").get("name"),
+                "city": organization_response.get("attributes").get("city"),
+                "state": organization_response.get("attributes").get("state"),
+                "posting_source": organization_payload.get("posting_source")
+            })
+
+        print(f"Organization id: {organization_id}")
+        return organization_id
+    except Exception as e:
+        conn.rollback()  # Rollback the transaction on error
+        print(f"Error creating organization data: {e}")
+        raise ValueError(e)
+
 def create_attribute_data_with_payload(conn, attribute_payload):
     """
     Create attribute data in the database.
@@ -153,6 +190,19 @@ def create_environment_data_with_payload(conn, environment_payload):
         conn.rollback()  # Rollback the transaction on error
         print(f"Error inserting or updating environment data: {e}")
         raise ValueError(e)
+
+def determine_species(species):
+    """
+    Determine the species of the animal.
+    :param species: Species string from the data source
+    :return: Species string for the database
+    """
+    species_map = {
+        "3": "cat",
+        "8": "dog"
+    }
+
+    return species_map.get(species)
 
 def determine_gender(gender):
     """
@@ -198,6 +248,7 @@ def determine_age_by_mapping(age):
     :return: Age string for the database
     """
     age_map = {
+        "Baby": "young",
         "Young": "young",
         "Adult": "adult",
         "Senior": "senior",
@@ -217,3 +268,16 @@ def determine_age_label_by_month_count(month_count):
         return "adult"
     else:
         return "senior"
+
+def determine_rescue_groups_breed_by_id(breed_id):
+    """
+    Determine the breed of the animal using Rescue Groups API.
+    :param breed_id: Breed ID from the data source
+    :return: Breed string for the database
+    """
+    try:
+        breed_response = RescueGroupsClient.fetch_breed_by_id(breed_id)
+        return breed_response.get("attributes").get("name")
+    except Exception as e:
+        print(f"Error fetching breed data: {e}")
+        raise ValueError("Failed to fetch breed data from RescueGroups")

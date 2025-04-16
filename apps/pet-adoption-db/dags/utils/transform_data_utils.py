@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import re
 
-from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, create_animal_data, determine_age_label_by_month_count, create_animal_data_with_payload, determine_age_by_mapping, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder
+from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, create_animal_data, determine_age_label_by_month_count, create_animal_data_with_payload, determine_age_by_mapping, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder, determine_species, create_organization_data_for_rescue_groups, determine_rescue_groups_breed_by_id
 
 def create_json_object(data):
     """
@@ -319,19 +319,70 @@ def rescue_group(conn, data):
     print(f"Data: {data}")
 
     # Checking the data -------------
+    status = data.get("relationships").get("statuses").get("data")[0].get("id")
+    species_id = data.get("relationships").get("species").get("data")[0].get("id")
+    species = determine_species(species_id)
+    gender = determine_gender(data.get("attributes").get("sex"))
+
+    if species not in ["dog", "cat"]:
+        print(f"Species not supported: {species_id}")
+        return
+
+    if gender is None:
+        print("Gender couldn't be determined")
+        return
+
+    # 1 = available, 3 = adopted
+    if status not in ["1", "3"]:
+        print(f"Status not supported: {status}")
+        return
 
     # Convert and clean the data ---
+    organization_id = data.get("relationships").get("orgs").get("data")[0].get("id")
+    breed = determine_rescue_groups_breed_by_id(data.get("relationships").get("breeds").get("data")[0].get("id"))
+    outcome_date = data.get("attributes").get("updatedDate") if status == "3" else None
 
     # Creating the organization item ---
+    organization_id = create_organization_data_for_rescue_groups(conn, {
+        "platform_organization_id": organization_id,
+        "posting_source": rescue_groups_source_label
+    })
 
     # Creating the animal item ---------
+    animal_id = create_animal_data_with_payload(conn, {
+        "platform_animal_id": data.get("id"),
+        "name": format_string(data.get("attributes").get("name")),
+        "age": determine_age_by_mapping(data.get("attributes").get("ageGroup")),
+        "species": species,
+        "breed": breed,
+        "sex": gender,
+        "size": determine_size(data.get("attributes").get("sizeGroup")),
+        "description": data.get("attributes").get("descriptionText"),
+        "adopted": status == "3",
+        "organization_id": organization_id,
+        "posting_img_count": data.get("attributes").get("pictureCount"),
+        "posting_source": rescue_groups_source_label,
+        "intake_date": data.get("attributes").get("createdDate"),
+        "outcome_date": outcome_date
+    })
 
     # Creating the environment item ----
+    create_environment_data_with_payload(conn, {
+        "animal_id": animal_id,
+        "cats_ok": data.get("attributes").get("isCatsOk"),
+        "dogs_ok": data.get("attributes").get("isDogsOk"),
+        "kids_ok": data.get("attributes").get("isKidsOk")
+    })
 
     # Creating the attribute item ------
-
-    raise ValueError("Don't continue")
-    # TODO
+    create_attribute_data_with_payload(conn, {
+        "animal_id": animal_id,
+        "spayed_neutered": None,
+        "house_trained": data.get("attributes").get("isHousetrained"),
+        "declawed": data.get("attributes").get("isDeclawed"),
+        "special_needs": data.get("attributes").get("isSpecialNeeds"),
+        "shots_current": None
+    })
 
 def default_case():
     print("Source not found, default case executed")

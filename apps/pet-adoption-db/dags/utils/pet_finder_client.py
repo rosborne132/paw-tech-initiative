@@ -30,16 +30,32 @@ class PetFinderClient:
         """Return headers for API requests."""
         return {"Authorization": f"Bearer {self.token}"}
 
-    def fetch_organization_by_id(self, organization_id):
-        """Fetch organization details by ID."""
+    def fetch_organization_by_id(self, organization_id, retries=3, backoff_factor=1):
+        """Fetch organization details by ID with retry logic."""
         url = f"{self.base_url}/organizations/{organization_id}"
-        response = requests.get(url, headers=self.get_headers())
 
-        if response.status_code == 401:  # Token expired
-            self.authenticate()
-            response = requests.get(url, headers=self.get_headers())
+        print(f"Fetching organization with ID: {organization_id}")
+        print(f"Using URL: {url}")
 
-        if response.status_code == 200:
-            return response.json()
-        else:
-            raise Exception(f"Failed to fetch organization: {response.status_code} - {response.text}")
+        for attempt in range(retries):
+            try:
+                response = requests.get(url, headers=self.get_headers())
+
+                if response.status_code == 401:  # Token expired
+                    self.authenticate()
+                    response = requests.get(url, headers=self.get_headers())
+
+                if response.status_code == 200:
+                    return response.json()["organization"]
+                else:
+                    raise Exception(f"Failed to fetch organization: {response.status_code} - {response.text}")
+
+            except (ConnectionError, Timeout) as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                if attempt < retries - 1:
+                    time.sleep(backoff_factor * (2 ** attempt))  # Exponential backoff
+                else:
+                    raise
+            except RequestException as e:
+                print(f"Request failed: {e}")
+                raise

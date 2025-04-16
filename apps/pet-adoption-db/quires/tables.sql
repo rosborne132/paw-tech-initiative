@@ -1,9 +1,14 @@
 -- Clear tables
 DROP TABLE IF EXISTS raw_data CASCADE;
+DROP TABLE IF EXISTS in_flight_data CASCADE;
 DROP TABLE IF EXISTS organizations CASCADE;
 DROP TABLE IF EXISTS animals CASCADE;
 DROP TABLE IF EXISTS attributes CASCADE;
 DROP TABLE IF EXISTS environment CASCADE;
+DROP TYPE IF EXISTS age_enum CASCADE;
+DROP TYPE IF EXISTS species_enum CASCADE;
+DROP TYPE IF EXISTS size_enum CASCADE;
+DROP TYPE IF EXISTS sex_enum CASCADE;
 
 -- Create ENUM types
 DO $$ BEGIN
@@ -108,10 +113,3 @@ CREATE TABLE IF NOT EXISTS environment (
     cats_ok BOOLEAN NULL DEFAULT NULL,
     kids_ok BOOLEAN NULL DEFAULT NULL
 );
-
--- Insert data into the organization table
-INSERT INTO organizations (platform_organization_id, name, city, state, posting_source)
-VALUES
-    ('1', 'Sonoma Department of Health Services', 'Santa Rosa A', 'CA', 'data.sonomacounty.ca.gov'),
-    ('2', 'Montgomery County Animal Services', 'Rockville', 'MD', 'catalog.data.gov'),
-    ('3', 'City of Long Beach Animal Shelter', 'Long Beach', 'CA', 'data.longbeach.gov')

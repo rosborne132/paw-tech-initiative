@@ -94,12 +94,44 @@ def insert_organization_data(conn, data):
         print(f"Error inserting organization data: {e}")
         return None
 
+def insert_organization_data(conn, data):
+    """
+    Insert organization data into the organization table.
+    :param conn: Database connection object
+    :param data: JSON string containing organization data
+    :return: Data id of the inserted organization
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO organizations (platform_organization_id, name, city, state, posting_source)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                data.get("platform_organization_id"),
+                data.get("name"),
+                data.get("city"),
+                data.get("state"),
+                data.get("posting_source")
+            )
+        )
+        org_id = cursor.fetchone()[0]
+        conn.commit()
+        cursor.close()
+
+        return org_id
+    except Exception as e:
+        print(f"Error inserting organization data: {e}")
+        return None
+
 def insert_animal_data(conn, data):
     """
-    Insert or update animal data in the animal table.
+    Insert animal data into the animal table.
     :param conn: Database connection object
     :param data: JSON string containing animal data
-    :return: Data id of the inserted or updated animal
+    :return: Data id of the inserted animal
     """
     try:
         cursor = conn.cursor()
@@ -107,25 +139,10 @@ def insert_animal_data(conn, data):
             """
             INSERT INTO animals (platform_animal_id, name, age, species, breed, sex, size, description, adopted, organization_id, posting_img_count, posting_source, intake_date, outcome_date)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (platform_animal_id)
-            DO UPDATE SET
-                name = EXCLUDED.name,
-                age = EXCLUDED.age,
-                species = EXCLUDED.species,
-                breed = EXCLUDED.breed,
-                sex = EXCLUDED.sex,
-                size = EXCLUDED.size,
-                description = EXCLUDED.description,
-                adopted = EXCLUDED.adopted,
-                organization_id = EXCLUDED.organization_id,
-                posting_img_count = EXCLUDED.posting_img_count,
-                posting_source = EXCLUDED.posting_source,
-                intake_date = EXCLUDED.intake_date,
-                outcome_date = EXCLUDED.outcome_date
             RETURNING id
             """,
             (
-                data.get("platform_animal_id"),
+                data.get("platform_organization_id"),
                 data.get("name"),
                 data.get("age"),
                 data.get("species"),
@@ -147,15 +164,15 @@ def insert_animal_data(conn, data):
 
         return animal_id
     except Exception as e:
-        print(f"Error inserting or updating animal data: {e}")
+        print(f"Error inserting animal data: {e}")
         return None
 
 def insert_attribute_data(conn, data):
     """
-    Insert or update attribute data in the animal_attribute table.
+    Insert attribute data into the animal_attribute table.
     :param conn: Database connection object
     :param data: JSON string containing attribute data
-    :return: Data id of the inserted or updated attribute
+    :return: Data id of the inserted attribute
     """
     try:
         cursor = conn.cursor()
@@ -163,13 +180,6 @@ def insert_attribute_data(conn, data):
             """
             INSERT INTO attributes (animal_id, spayed_neutered, house_trained, declawed, special_needs, shots_current)
             VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (animal_id)
-            DO UPDATE SET
-                spayed_neutered = EXCLUDED.spayed_neutered,
-                house_trained = EXCLUDED.house_trained,
-                declawed = EXCLUDED.declawed,
-                special_needs = EXCLUDED.special_needs,
-                shots_current = EXCLUDED.shots_current
             RETURNING id
             """,
             (
@@ -187,15 +197,15 @@ def insert_attribute_data(conn, data):
 
         return attribute_id
     except Exception as e:
-        print(f"Error inserting or updating attribute data: {e}")
+        print(f"Error inserting attribute data: {e}")
         return None
 
 def insert_environment_data(conn, data):
     """
-    Insert or update environment data in the animal_environment table.
+    Insert environment data into the animal_environment table.
     :param conn: Database connection object
     :param data: JSON string containing environment data
-    :return: Data id of the inserted or updated environment
+    :return: Data id of the inserted environment
     """
     try:
         cursor = conn.cursor()
@@ -203,11 +213,6 @@ def insert_environment_data(conn, data):
             """
             INSERT INTO environment (animal_id, dogs_ok, cats_ok, kids_ok)
             VALUES (%s, %s, %s, %s)
-            ON CONFLICT (animal_id)
-            DO UPDATE SET
-                dogs_ok = EXCLUDED.dogs_ok,
-                cats_ok = EXCLUDED.cats_ok,
-                kids_ok = EXCLUDED.kids_ok
             RETURNING id
             """,
             (
@@ -223,24 +228,23 @@ def insert_environment_data(conn, data):
 
         return environment_id
     except Exception as e:
-        print(f"Error inserting or updating environment data: {e}")
+        print(f"Error inserting environment data: {e}")
         return None
 
-def get_organizations_id_by_source(conn, posting_source, platform_organization_id = None):
+def get_organizations_id_by_name(conn, name):
     """
-    Get organization data by posting_source.
+    Get organization data by name.
     :param conn: Database connection object
-    :param posting_source: Posting source of the organization
-    :param platform_organization_id: Platform organization ID (optional)
+    :param name: Name of the organization
     :return: Organization data id
     """
     try:
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT * FROM organizations WHERE posting_source = %s and platform_organization_id = %s
+            SELECT id FROM organizations WHERE name = %s
             """,
-            (posting_source, platform_organization_id)
+            (name,)
         )
         org_id = cursor.fetchone()[0]
         cursor.close()

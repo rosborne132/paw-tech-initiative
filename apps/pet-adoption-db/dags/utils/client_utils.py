@@ -1,6 +1,6 @@
 import json
 
-from utils.db_client import connect_to_db, get_organizations_id_by_name, insert_organization_data, insert_data_to_raw_data_table, insert_animal_data, get_animal_id_by_by_name
+from utils.db_client import connect_to_db, get_organizations_id_by_name, insert_organization_data, insert_data_to_raw_data_table, insert_animal_data, insert_environment_data, insert_attribute_data
 
 from utils.pet_finder_client import PetFinderClient
 from utils.recuse_groups_client import RescueGroupsClient
@@ -55,7 +55,7 @@ def create_organization_data_with_payload(conn, organization_payload):
     :return: Organization id
     """
     try:
-        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"), organization_payload.get("platform_organization_id"))
+        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
 
         if not organization_id:
             print("Organization not found")
@@ -92,26 +92,35 @@ def create_organization_data_for_pet_finder(conn, organization_payload):
     :param organization_payload: JSON string containing organization data
     :return: Organization id
     """
+    try:
+        # Check if the organization already exists
+        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
 
-    ## Check if the organization already exists
-    organization_id = get_organizations_id_by_source(conn, organization_payload.get("posting_source"), organization_payload.get("platform_organization_id"))
+        if not organization_id:
+            print("Organization not found")
+            # Use PetFinderClient to get the organization data
+            try:
+                organization_response = PetFinderClient.fetch_organization_by_id(organization_payload.get("platform_organization_id"))
+                print(f"Organization response: {organization_response}")
+            except Exception as e:
+                print(f"Error fetching organizations data: {e}")
+                raise ValueError("Failed to fetch organization data from PetFinder")
 
-    if not organization_id:
-        print("Organization not found")
-        ## Use pet finder client to get the organization data
-        organization_response = PetFinderClient.get_organization_data(organization_payload.get("platform_organization_id"))
-        print(f"Organization response: {organization_response}")
-        ## Create the organization data
-        organization_id = create_organization_data_with_payload(conn, {
-            "platform_organization_id": organization_payload.get("platform_organization_id"),
-            "name": organization_response.get("name"),
-            "city": organization_response.get("address").get("city"),
-            "state": organization_response.get("address").get("state"),
-            "posting_source": organization_payload.get("posting_source")
-        })
+            # Create the organization data
+            organization_id = create_organization_data_with_payload(conn, {
+                "platform_organization_id": organization_payload.get("platform_organization_id"),
+                "name": organization_response.get("name"),
+                "city": organization_response.get("address", {}).get("city"),
+                "state": organization_response.get("address", {}).get("state"),
+                "posting_source": organization_payload.get("posting_source")
+            })
 
-    print(f"Organization id: {organization_id}")
-    return organization_id
+        print(f"Organization id: {organization_id}")
+        return organization_id
+    except Exception as e:
+        conn.rollback()  # Rollback the transaction on error
+        print(f"Error creating organization data: {e}")
+        raise ValueError(e)
 
 def create_attribute_data_with_payload(conn, attribute_payload):
     """

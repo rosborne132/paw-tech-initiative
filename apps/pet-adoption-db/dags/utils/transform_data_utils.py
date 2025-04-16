@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import re
 
-from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, create_animal_data, determine_age_label_by_month_count, create_animal_data_with_payload, determine_age_by_mapping, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder, determine_species, create_organization_data_for_rescue_groups, determine_rescue_groups_breed_by_id
+from utils.client_utils import determine_gender, determine_size, create_organization_data_with_payload, determine_age_label_by_month_count, create_animal_data_with_payload, determine_age_by_mapping, create_attribute_data_with_payload, create_environment_data_with_payload, create_organization_data_for_pet_finder, determine_species, create_organization_data_for_rescue_groups, determine_rescue_groups_breed_by_id
 
 def create_json_object(data):
     """
@@ -91,10 +91,9 @@ long_beach_source_label = "City of Long Beach Animal Shelter"
 pet_finder_source_label = "Pet Finder"
 rescue_groups_source_label = "Rescue Groups"
 
-def sonoma_county(conn, data):
+def sonoma_county(data):
     """
     Sonoma County Department of Health Services case executed
-    :param conn: Database connection
     :param data: Data to transform
     :return: void
     """
@@ -123,7 +122,7 @@ def sonoma_county(conn, data):
         return
 
     # Creating the organization item ---
-    organization_id = create_organization_data_with_payload(conn, {
+    organization_id = create_organization_data_with_payload({
         "platform_organization_id": None,
         "name": sonoma_county_source_label,
         "city": "Sonoma",
@@ -132,7 +131,7 @@ def sonoma_county(conn, data):
     })
 
     # Creating the animal item ---------
-    create_animal_data_with_payload(conn, {
+    create_animal_data_with_payload({
         "platform_animal_id": data.get("Animal ID"),
         "name": format_string(data.get("Name")),
         "age": determine_age_label_by_month_count(age),
@@ -149,10 +148,9 @@ def sonoma_county(conn, data):
         "outcome_date": data.get("Outcome Date")
     })
 
-def montgomery_county(conn, data):
+def montgomery_county(data):
     """
     Montgomery County Animal Services case executed
-    :param conn: Database connection
     :param data: Data to transform
     :return: void
     """
@@ -180,7 +178,7 @@ def montgomery_county(conn, data):
         return
 
     # Creating the organization item ---
-    organization_id = create_organization_data_with_payload(conn, {
+    organization_id = create_organization_data_with_payload({
         "platform_organization_id": None,
         "name": montgomery_county_source_label,
         "city": "Montgomery",
@@ -189,7 +187,7 @@ def montgomery_county(conn, data):
     })
 
     # Creating the animal item ---------
-    create_animal_data_with_payload(conn, {
+    create_animal_data_with_payload({
         "platform_animal_id": data.get("Animal ID"),
         "name": format_string(data.get("Pet name")),
         "age": age,
@@ -206,10 +204,9 @@ def montgomery_county(conn, data):
         "outcome_date": None
     })
 
-def long_beach(conn, data):
+def long_beach(data):
     """
     City of Long Beach Animal Shelter case executed
-    :param conn: Database connection
     :param data: Data to transform
     :return: void
     """
@@ -232,7 +229,7 @@ def long_beach(conn, data):
     gender = determine_gender(data.get("sex"))
 
     # Creating the organization item ---
-    organization_id = create_organization_data_with_payload(conn, {
+    organization_id = create_organization_data_with_payload({
         "platform_organization_id": None,
         "name": long_beach_source_label,
         "city": "Long Beach",
@@ -241,7 +238,7 @@ def long_beach(conn, data):
     })
 
     # Creating the animal item ---------
-    create_animal_data_with_payload(conn, {
+    create_animal_data_with_payload({
         "platform_animal_id": data.get("animal_id"),
         "name": format_string(data.get("animal_name")),
         "age": None,
@@ -258,7 +255,12 @@ def long_beach(conn, data):
         "outcome_date": data.get("outcome_date")
     })
 
-def pet_finder(conn, data):
+def pet_finder(data):
+    """
+    Pet Finder case executed
+    :param data: Data to transform
+    :return: void
+    """
     print("Pet Finder case executed")
     print(f"Data: {data}")
 
@@ -273,13 +275,13 @@ def pet_finder(conn, data):
     outcome_date = data.get("status_changed_at") if data.get("status") == "adopted" else None
 
     # Creating the organization item ---
-    organization_id = create_organization_data_for_pet_finder(conn, {
+    organization_id = create_organization_data_for_pet_finder({
         "platform_organization_id": data.get("organization_id"),
         "posting_source": pet_finder_source_label
     })
 
     # Creating the animal item ---------
-    animal_id = create_animal_data_with_payload(conn, {
+    animal_id = create_animal_data_with_payload({
         "platform_animal_id": data.get("id"),
         "name": format_string(data.get("name")),
         "age": determine_age_by_mapping(data.get("age")),
@@ -297,7 +299,7 @@ def pet_finder(conn, data):
     })
 
     # Creating the environment item ----
-    create_environment_data_with_payload(conn, {
+    create_environment_data_with_payload({
         "animal_id": animal_id,
         "cats_ok": data.get("environment").get("cats"),
         "dogs_ok": data.get("environment").get("dogs"),
@@ -305,7 +307,7 @@ def pet_finder(conn, data):
     })
 
     # Creating the attribute item ------
-    create_attribute_data_with_payload(conn, {
+    create_attribute_data_with_payload({
         "animal_id": animal_id,
         "spayed_neutered": data.get("attributes").get("spayed_neutered"),
         "house_trained": data.get("attributes").get("house_trained"),
@@ -314,7 +316,12 @@ def pet_finder(conn, data):
         "shots_current": data.get("attributes").get("shots_current")
     })
 
-def rescue_group(conn, data):
+def rescue_group(data):
+    """
+    Rescue Groups case executed
+    :param data: Data to transform
+    :return: void
+    """
     print("Rescue Groups case executed")
     print(f"Data: {data}")
 
@@ -343,13 +350,13 @@ def rescue_group(conn, data):
     outcome_date = data.get("attributes").get("updatedDate") if status == "3" else None
 
     # Creating the organization item ---
-    organization_id = create_organization_data_for_rescue_groups(conn, {
+    organization_id = create_organization_data_for_rescue_groups({
         "platform_organization_id": organization_id,
         "posting_source": rescue_groups_source_label
     })
 
     # Creating the animal item ---------
-    animal_id = create_animal_data_with_payload(conn, {
+    animal_id = create_animal_data_with_payload({
         "platform_animal_id": data.get("id"),
         "name": format_string(data.get("attributes").get("name")),
         "age": determine_age_by_mapping(data.get("attributes").get("ageGroup")),
@@ -367,7 +374,7 @@ def rescue_group(conn, data):
     })
 
     # Creating the environment item ----
-    create_environment_data_with_payload(conn, {
+    create_environment_data_with_payload({
         "animal_id": animal_id,
         "cats_ok": data.get("attributes").get("isCatsOk"),
         "dogs_ok": data.get("attributes").get("isDogsOk"),
@@ -375,7 +382,7 @@ def rescue_group(conn, data):
     })
 
     # Creating the attribute item ------
-    create_attribute_data_with_payload(conn, {
+    create_attribute_data_with_payload({
         "animal_id": animal_id,
         "spayed_neutered": None,
         "house_trained": data.get("attributes").get("isHousetrained"),
@@ -389,19 +396,19 @@ def default_case():
     print(f"Data: {data}")
     return None
 
-def switch_example(conn, source, data):
+def switch_example(source, data):
     """Switch case example using dictionary mapping."""
     switch = {
-        sonoma_county_source_label: lambda: sonoma_county(conn, data),
-        montgomery_county_source_label: lambda: montgomery_county(conn, data),
-        long_beach_source_label: lambda: long_beach(conn, data),
-        pet_finder_source_label: lambda: pet_finder(conn, data),
-        rescue_groups_source_label: lambda: rescue_group(conn, data)
+        sonoma_county_source_label: lambda: sonoma_county(data),
+        montgomery_county_source_label: lambda: montgomery_county(data),
+        long_beach_source_label: lambda: long_beach(data),
+        pet_finder_source_label: lambda: pet_finder(data),
+        rescue_groups_source_label: lambda: rescue_group(data)
     }
 
     return switch.get(source, lambda: default_case())()  # Call the function with the argument
 
-def transform_and_insert_data_by_source(conn, data, source):
+def transform_and_insert_data_by_source(data, source):
     """
     Transform and insert data by source.
     :param conn: Database connection
@@ -409,4 +416,4 @@ def transform_and_insert_data_by_source(conn, data, source):
     :param source: Source of the data
     :return: void
     """
-    switch_example(conn, source, data)
+    switch_example(source, data)

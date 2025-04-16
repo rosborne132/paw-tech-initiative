@@ -8,19 +8,17 @@ from utils.clients.db_clients.dbs.environment import insert_environment_data
 from utils.clients.db_clients.dbs.attribute import insert_attribute_data
 
 # Clients
-from utils.clients.db_clients.db_client import connect_to_db
+from utils.clients.db_clients.db import DBClient
 from utils.clients.api_clients.pet_finder import PetFinderClient
 from utils.clients.api_clients.recuse_groups import RescueGroupsClient
 
+db_client = DBClient()
+conn = db_client.connect()
 PetFinderClient = PetFinderClient()
 RescueGroupsClient = RescueGroupsClient()
 
-def insert_data_to_raw_data_table_task(ti, conn, task_id, task_key, source_name):
+def insert_data_to_raw_data_table_task(ti, task_id, task_key, source_name):
     """Insert data into the raw_data table."""
-    if not conn:
-        print("Failed to connect to the database.")
-        return
-
     # Fetch the collected data from XCom
     all_data = ti.xcom_pull(task_ids=task_id, key=task_key)
 
@@ -32,42 +30,23 @@ def insert_data_to_raw_data_table_task(ti, conn, task_id, task_key, source_name)
     print(f"Sample data: {all_data[:1]}")  # Print the first record for debugging
 
     # Insert data into the raw_data table
-    insert_data_to_raw_data_table(conn, all_data, source_name)
+    insert_data_to_raw_data_table(all_data, source_name)
 
     conn.close()
 
-def create_animal_data(conn, animal_payload):
-    """
-    Create animal data in the database.
-    :param conn: Database connection object
-    :param animal_payload: JSON string containing animal data
-    """
-    try:
-        print(f"New animal payload: {animal_payload}")
-
-        animal_id = insert_animal_data(conn, animal_payload)
-
-        print(f"New animal id: {animal_id}")
-        return
-    except Exception as e:
-        conn.rollback()  # Rollback the transaction on error
-        print(f"Error inserting animal data: {e}")
-        raise ValueError(e)
-
-def create_organization_data_with_payload(conn, organization_payload):
+def create_organization_data_with_payload(organization_payload):
     """
     Create organization data in the database.
-    :param conn: Database connection object
     :param organization_payload: JSON string containing organization data
     :return: Organization id
     """
     try:
-        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
+        organization_id = get_organizations_id_by_name(organization_payload.get("name"))
 
         if not organization_id:
             print("Organization not found")
             print("Inserting organization data")
-            organization_id = insert_organization_data(conn, organization_payload)
+            organization_id = insert_organization_data(organization_payload)
 
         return organization_id
     except Exception as e:
@@ -75,15 +54,14 @@ def create_organization_data_with_payload(conn, organization_payload):
         print(f"Error inserting organization data: {e}")
         raise ValueError(e)
 
-def create_animal_data_with_payload(conn, animal_payload):
+def create_animal_data_with_payload(animal_payload):
     """
     Create or update animal data in the database.
-    :param conn: Database connection object
     :param animal_payload: JSON string containing animal data
     :return: Animal id
     """
     try:
-        animal_id = insert_animal_data(conn, animal_payload)
+        animal_id = insert_animal_data(animal_payload)
         print(f"Animal id: {animal_id}")
         return animal_id
     except Exception as e:
@@ -91,16 +69,15 @@ def create_animal_data_with_payload(conn, animal_payload):
         print(f"Error inserting or updating animal data: {e}")
         raise ValueError(e)
 
-def create_organization_data_for_pet_finder(conn, organization_payload):
+def create_organization_data_for_pet_finder(organization_payload):
     """
     Create organization data for Pet Finder in the database.
-    :param conn: Database connection object
     :param organization_payload: JSON string containing organization data
     :return: Organization id
     """
     try:
         # Check if the organization already exists
-        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
+        organization_id = get_organizations_id_by_name(organization_payload.get("name"))
 
         if not organization_id:
             print("Organization not found")
@@ -113,7 +90,7 @@ def create_organization_data_for_pet_finder(conn, organization_payload):
                 raise ValueError("Failed to fetch organization data from PetFinder")
 
             # Create the organization data
-            organization_id = create_organization_data_with_payload(conn, {
+            organization_id = create_organization_data_with_payload({
                 "platform_organization_id": organization_payload.get("platform_organization_id"),
                 "name": organization_response.get("name"),
                 "city": organization_response.get("address", {}).get("city"),
@@ -128,17 +105,15 @@ def create_organization_data_for_pet_finder(conn, organization_payload):
         print(f"Error creating organization data: {e}")
         raise ValueError(e)
 
-def create_organization_data_for_rescue_groups(conn, organization_payload):
+def create_organization_data_for_rescue_groups(organization_payload):
     """
     Create organization data for Rescue Groups in the database.
-    :param
-    conn: Database connection object
     :param organization_payload: JSON string containing organization data
     :return: Organization id
     """
     try:
         # Check if the organization already exists
-        organization_id = get_organizations_id_by_name(conn, organization_payload.get("name"))
+        organization_id = get_organizations_id_by_name(organization_payload.get("name"))
 
         if not organization_id:
             print("Organization not found by name - first check")
@@ -151,7 +126,7 @@ def create_organization_data_for_rescue_groups(conn, organization_payload):
                 raise ValueError("Failed to fetch organization data from RescueGroups")
 
             # Create the organization data
-            organization_id = create_organization_data_with_payload(conn, {
+            organization_id = create_organization_data_with_payload({
                 "platform_organization_id": organization_payload.get("platform_organization_id"),
                 "name": organization_response.get("attributes").get("name"),
                 "city": organization_response.get("attributes").get("city"),
@@ -166,15 +141,14 @@ def create_organization_data_for_rescue_groups(conn, organization_payload):
         print(f"Error creating organization data: {e}")
         raise ValueError(e)
 
-def create_attribute_data_with_payload(conn, attribute_payload):
+def create_attribute_data_with_payload(attribute_payload):
     """
     Create attribute data in the database.
-    :param conn: Database connection object
     :param attribute_payload: JSON string containing attribute data
     :return: Attribute id
     """
     try:
-        attribute_id = insert_attribute_data(conn, attribute_payload)
+        attribute_id = insert_attribute_data(attribute_payload)
         print(f"Attribute id: {attribute_id}")
         return attribute_id
     except Exception as e:
@@ -182,15 +156,14 @@ def create_attribute_data_with_payload(conn, attribute_payload):
         print(f"Error inserting or updating attribute data: {e}")
         raise ValueError(e)
 
-def create_environment_data_with_payload(conn, environment_payload):
+def create_environment_data_with_payload(environment_payload):
     """
     Create environment data in the database.
-    :param conn: Database connection object
     :param environment_payload: JSON string containing environment data
     :return: Environment id
     """
     try:
-        environment_id = insert_environment_data(conn, environment_payload)
+        environment_id = insert_environment_data(environment_payload)
         print(f"Environment id: {environment_id}")
         return environment_id
     except Exception as e:

@@ -1,7 +1,12 @@
-def insert_environment_data(conn, data):
+# Clients
+from utils.clients.db_clients.db import DBClient
+
+db_client = DBClient()
+conn = db_client.connect()
+
+def insert_environment_data(data):
     """
     Insert environment data into the animal_environment table.
-    :param conn: Database connection object
     :param data: JSON string containing environment data
     :return: Data id of the inserted environment
     """

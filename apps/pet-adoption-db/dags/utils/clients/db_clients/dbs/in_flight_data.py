@@ -1,7 +1,12 @@
-def delete_row_by_id(conn, row_id):
+# Clients
+from utils.clients.db_clients.db import DBClient
+
+db_client = DBClient()
+conn = db_client.connect()
+
+def delete_row_by_id(row_id):
     """
     Delete a row from the in_flight_data table by ID.
-    :param conn: Database connection object
     :param row_id: ID of the row to delete
     """
     try:

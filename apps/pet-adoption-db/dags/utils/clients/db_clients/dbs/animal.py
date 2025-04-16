@@ -1,7 +1,12 @@
-def insert_animal_data(conn, data):
+# Clients
+from utils.clients.db_clients.db import DBClient
+
+db_client = DBClient()
+conn = db_client.connect()
+
+def insert_animal_data(data):
     """
     Insert animal data into the animal table.
-    :param conn: Database connection object
     :param data: JSON string containing animal data
     :return: Data id of the inserted animal
     """

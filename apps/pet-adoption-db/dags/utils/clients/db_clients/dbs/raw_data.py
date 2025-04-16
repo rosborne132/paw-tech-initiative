@@ -1,7 +1,12 @@
-def insert_data_to_raw_data_table(conn, data, source):
+# Clients
+from utils.clients.db_clients.db import DBClient
+
+db_client = DBClient()
+conn = db_client.connect()
+
+def insert_data_to_raw_data_table(data, source):
     """
     Insert data into the raw_data table.
-    :param conn: Database connection object
     :param data: List of dictionaries (rows of json data)
     :param source: Source name (e.g., CSV file name or API name)
     """

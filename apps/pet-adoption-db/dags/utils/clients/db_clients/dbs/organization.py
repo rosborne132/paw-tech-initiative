@@ -1,7 +1,12 @@
-def insert_organization_data(conn, data):
+# Clients
+from utils.clients.db_clients.db import DBClient
+
+db_client = DBClient()
+conn = db_client.connect()
+
+def insert_organization_data(data):
     """
     Insert organization data into the organization table.
-    :param conn: Database connection object
     :param data: JSON string containing organization data
     :return: Data id of the inserted organization
     """
@@ -28,10 +33,9 @@ def insert_organization_data(conn, data):
         print(f"Error inserting organization data: {e}")
         return None
 
-def get_organizations_id_by_name(conn, name):
+def get_organizations_id_by_name(name):
     """
     Get organization data by name.
-    :param conn: Database connection object
     :param name: Name of the organization
     :return: Organization data id
     """

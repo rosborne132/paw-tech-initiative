@@ -1,9 +1,16 @@
 import json
 
-from utils.db_client import connect_to_db, get_organizations_id_by_name, insert_organization_data, insert_data_to_raw_data_table, insert_animal_data, insert_environment_data, insert_attribute_data
+# DB Helpers
+from utils.clients.db_clients.dbs.animal import insert_animal_data
+from utils.clients.db_clients.dbs.organization import insert_organization_data, get_organizations_id_by_name
+from utils.clients.db_clients.dbs.raw_data import insert_data_to_raw_data_table
+from utils.clients.db_clients.dbs.environment import insert_environment_data
+from utils.clients.db_clients.dbs.attribute import insert_attribute_data
 
-from utils.pet_finder_client import PetFinderClient
-from utils.recuse_groups_client import RescueGroupsClient
+# Clients
+from utils.clients.db_clients.db_client import connect_to_db
+from utils.clients.api_clients.pet_finder import PetFinderClient
+from utils.clients.api_clients.recuse_groups import RescueGroupsClient
 
 PetFinderClient = PetFinderClient()
 RescueGroupsClient = RescueGroupsClient()

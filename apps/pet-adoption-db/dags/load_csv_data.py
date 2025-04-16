@@ -6,7 +6,7 @@ import csv
 import sys
 import json
 
-from utils.db_client import connect_to_db
+from utils.clients.db_clients.db_client import connect_to_db
 from utils.client_utils import insert_data_to_raw_data_table_task
 
 include_folder = os.path.join(os.path.dirname(__file__), '..', 'include')

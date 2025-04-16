@@ -3,8 +3,9 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import json
 
-from utils.db_client import connect_to_db, delete_row_by_id
+from utils.clients.db_clients.db_client import connect_to_db
 from utils.transform_data_utils import label_query_results, transform_and_insert_data_by_source
+from utils.clients.db_clients.dbs.in_flight_data import delete_row_by_id
 
 # Connect to the database
 db_connection = connect_to_db()

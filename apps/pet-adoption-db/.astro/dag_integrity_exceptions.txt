@@ -1,1 +1,5 @@
-# Add dag files to exempt from parse test below. ex: dags/<test-file>
+dags/fetch_long_beach_data.py
+dags/fetch_pet_finder_data.py
+dags/fetch_rescue_group_data.py
+dags/load_csv_data.py
+dags/transform_fetch_data.py

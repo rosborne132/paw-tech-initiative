@@ -300,23 +300,41 @@ def pet_finder(data):
         "outcome_date": outcome_date
     })
 
+    is_cats_ok = data.get("environment").get("cats")
+    is_dogs_ok = data.get("environment").get("dogs")
+    is_kids_ok = data.get("environment").get("children")
+
     # Creating the environment item ----
-    create_environment_data_with_payload({
-        "animal_id": animal_id,
-        "cats_ok": data.get("environment").get("cats"),
-        "dogs_ok": data.get("environment").get("dogs"),
-        "kids_ok": data.get("environment").get("children")
-    })
+    if is_cats_ok is None and is_dogs_ok is None and is_kids_ok is None:
+        print("Environment data not available")
+    else:
+        print("Environment data available")
+        create_environment_data_with_payload({
+            "animal_id": animal_id,
+            "cats_ok": is_cats_ok,
+            "dogs_ok": is_dogs_ok,
+            "kids_ok": is_kids_ok
+        })
+
+    is_spayed_neutered = data.get("attributes").get("spayed_neutered")
+    is_house_trained = data.get("attributes").get("house_trained")
+    is_declawed = data.get("attributes").get("declawed")
+    is_special_needs = data.get("attributes").get("special_needs")
+    is_shots_current = data.get("attributes").get("shots_current")
 
     # Creating the attribute item ------
-    create_attribute_data_with_payload({
-        "animal_id": animal_id,
-        "spayed_neutered": data.get("attributes").get("spayed_neutered"),
-        "house_trained": data.get("attributes").get("house_trained"),
-        "declawed": data.get("attributes").get("declawed"),
-        "special_needs": data.get("attributes").get("special_needs"),
-        "shots_current": data.get("attributes").get("shots_current")
-    })
+    if is_spayed_neutered is None and is_house_trained is None and is_declawed is None and is_special_needs is None and is_shots_current is None:
+        print("Attribute data not available")
+    else:
+        print("Attribute data available")
+        create_attribute_data_with_payload({
+            "animal_id": animal_id,
+            "spayed_neutered": is_spayed_neutered,
+            "house_trained": is_house_trained,
+            "declawed": is_declawed,
+            "special_needs": is_special_needs,
+            "shots_current": is_shots_current
+        })
 
 def rescue_group(data):
     """
@@ -375,23 +393,39 @@ def rescue_group(data):
         "outcome_date": outcome_date
     })
 
+    is_cats_ok = data.get("attributes").get("isCatsOk")
+    is_dogs_ok = data.get("attributes").get("isDogsOk")
+    is_kids_ok = data.get("attributes").get("isKidsOk")
+
     # Creating the environment item ----
-    create_environment_data_with_payload({
-        "animal_id": animal_id,
-        "cats_ok": data.get("attributes").get("isCatsOk"),
-        "dogs_ok": data.get("attributes").get("isDogsOk"),
-        "kids_ok": data.get("attributes").get("isKidsOk")
-    })
+    if is_cats_ok is None and is_dogs_ok is None and is_kids_ok is None:
+        print("Environment data not available")
+    else:
+        print("Environment data available")
+        create_environment_data_with_payload({
+            "animal_id": animal_id,
+            "cats_ok": is_cats_ok,
+            "dogs_ok": is_dogs_ok,
+            "kids_ok": is_kids_ok
+        })
+
+    is_house_trained = data.get("attributes").get("isHouseTrained")
+    is_declawed = data.get("attributes").get("isDeclawed")
+    is_special_needs = data.get("attributes").get("isSpecialNeeds")
 
     # Creating the attribute item ------
-    create_attribute_data_with_payload({
-        "animal_id": animal_id,
-        "spayed_neutered": None,
-        "house_trained": data.get("attributes").get("isHousetrained"),
-        "declawed": data.get("attributes").get("isDeclawed"),
-        "special_needs": data.get("attributes").get("isSpecialNeeds"),
-        "shots_current": None
-    })
+    if is_house_trained is None and is_declawed is None and is_special_needs is None:
+        print("Attribute data not available")
+    else:
+        print("Attribute data available")
+        create_attribute_data_with_payload({
+            "animal_id": animal_id,
+            "spayed_neutered": None,
+            "house_trained": is_house_trained,
+            "declawed": is_declawed,
+            "special_needs": is_special_needs,
+            "shots_current": None
+        })
 
 def default_case():
     print("Source not found, default case executed")

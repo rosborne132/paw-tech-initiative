@@ -5,7 +5,7 @@ import os
 import json
 import requests
 
-from utils.db_client import connect_to_db, insert_data_to_raw_data_table
+from utils.clients.db_clients.dbs.raw_data import insert_data_to_raw_data_table
 from utils.client_utils import insert_data_to_raw_data_table_task
 
 default_args = {
@@ -73,7 +73,6 @@ with DAG(
         task_id="insert_data_task",
         python_callable=insert_data_to_raw_data_table_task,
         op_kwargs={
-            "conn": connect_to_db(),  # Pass the database connection
             "task_id": "fetch_data_task",  # Task ID to pull data from
             "task_key": "all_data",  # Key to pull data from XCom
             "source_name": "City of Long Beach Animal Shelter",  # Source name

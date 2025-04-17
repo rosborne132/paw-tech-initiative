@@ -3,11 +3,14 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import json
 
-from utils.db_client import connect_to_db, delete_row_by_id
 from utils.transform_data_utils import label_query_results, transform_and_insert_data_by_source
+from utils.clients.db_clients.dbs.in_flight_data import delete_row_by_id
 
-# Connect to the database
-db_connection = connect_to_db()
+# Clients
+from utils.clients.db_clients.db import DBClient
+
+db_client = DBClient()
+conn = db_client.connect()
 
 # Define the DAG
 default_args = {
@@ -19,7 +22,7 @@ default_args = {
 def fetch_data_from_in_flight_table(ti):
     """Fetch data from the in_flight table."""
     # Check if the database connection is established
-    if not db_connection:
+    if not conn:
         print("Failed to connect to the database.")
         return
 
@@ -27,7 +30,7 @@ def fetch_data_from_in_flight_table(ti):
     sql_query = "SELECT * FROM in_flight_data LIMIT 101;"
 
     # Execute the SQL query
-    cursor = db_connection.cursor()
+    cursor = conn.cursor()
     cursor.execute(sql_query)
     result = cursor.fetchall()
 
@@ -54,10 +57,10 @@ def transform_data(ti):
 
         print("--------------------------------------------")
         try:
-            transform_and_insert_data_by_source(db_connection, raw_data, source)
+            transform_and_insert_data_by_source(raw_data, source)
 
             print(f"Deleting row id: {row_id}")
-            delete_row_by_id(db_connection, row_id)
+            delete_row_by_id(row_id)
         except Exception as e:
             print(f"Error creating JSON object: {e}")
             print("Moving to next row...")

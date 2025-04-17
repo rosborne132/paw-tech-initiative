@@ -6,11 +6,9 @@ import csv
 import sys
 import json
 
-from utils.db_client import connect_to_db
 from utils.client_utils import insert_data_to_raw_data_table_task
 
 include_folder = os.path.join(os.path.dirname(__file__), '..', 'include')
-db_connection = connect_to_db()
 
 def read_csv_file(file_path):
     """Read data from a CSV file and return a list of dictionaries."""
@@ -61,7 +59,6 @@ with DAG(
         task_id='insert_montgomery_data_task',
         python_callable=insert_data_to_raw_data_table_task,
         op_kwargs={
-            "conn": db_connection,
             "task_id": "load_csv_file",
             "task_key": "montgomery_county_data",
             "source_name": "Montgomery County Animal Services",
@@ -73,7 +70,6 @@ with DAG(
         task_id='insert_sonoma_data_task',
         python_callable=insert_data_to_raw_data_table_task,
         op_kwargs={
-            "conn": db_connection,
             "task_id": "load_csv_file",
             "task_key": "sonoma_county_data",
             "source_name": "Sonoma County Department of Health Services",

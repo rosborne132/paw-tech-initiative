@@ -27,7 +27,7 @@ def fetch_data_from_in_flight_table(ti):
         return
 
     # Define the SQL query to fetch data from the in_flight table
-    sql_query = "SELECT * FROM in_flight_data LIMIT 101;"
+    sql_query = "SELECT * FROM in_flight_data LIMIT 500;"
 
     # Execute the SQL query
     cursor = conn.cursor()
@@ -70,7 +70,7 @@ with DAG(
     dag_id="transform_fetch_data",
     default_args=default_args,
     start_date=datetime(2023, 1, 1),
-    schedule_interval=timedelta(hours=4),
+    schedule_interval=timedelta(hours=2),
     catchup=False,
 ) as dag:
     # Task 1: Pull data from in_flight table

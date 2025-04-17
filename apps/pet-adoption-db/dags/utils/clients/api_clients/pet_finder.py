@@ -1,9 +1,6 @@
 import requests
 import os
 
-PF_CLIENT_ID = os.getenv("PF_CLIENT_ID")
-PF_CLIENT_SECRET = os.getenv("PF_CLIENT_SECRET")
-
 class PetFinderClient:
     """A client for interacting with the PetFinder API."""
 
@@ -14,6 +11,8 @@ class PetFinderClient:
 
     def authenticate(self):
         """Authenticate with the PetFinder API and retrieve an access token."""
+        PF_CLIENT_ID = os.getenv("PF_CLIENT_ID")
+        PF_CLIENT_SECRET = os.getenv("PF_CLIENT_SECRET")
         auth_url = f"{self.base_url}/oauth2/token"
         payload = {
             "grant_type": "client_credentials",

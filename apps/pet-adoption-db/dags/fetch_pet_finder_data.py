@@ -35,6 +35,7 @@ def fetch_paginated_data(ti):
     headers = ti.xcom_pull(task_ids="prepare_headers_task")  # Fetch headers from XCom
     params = {
         "after": (datetime.utcnow() - timedelta(days=1)).isoformat() + "Z",
+        "source": "adopted",
         "limit": 100,
         "page": 1,
     }
@@ -51,7 +52,7 @@ def fetch_paginated_data(ti):
 
         # Check if there is a next page
         pagination = data.get("pagination", {})
-        if not pagination.get("_links", {}).get("next"):
+        if not pagination.get("_links", {}).get("next") or params["page"] >= 15:
             break
 
         # Move to the next page

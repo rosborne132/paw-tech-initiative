@@ -40,6 +40,7 @@ def determine_size(size):
         "TOY": "small",
         "LARGE": "large",
         "Large": "large",
+        "X-LRG": "large",
         "Extra Large": "large",
         "MED": "medium",
         "Medium": "medium",
